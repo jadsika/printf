@@ -1,58 +1,37 @@
-#include <stdarg.h>
-#include <unistd.h>
 #include "main.h"
 
 /**
- * _printf - Custom printf function
- * @format: Format string
- * Return: Number of characters printed (excluding null byte)
+ * _printf - Receives the main string and all the necessary parameters to
+ * print a formated string
+ * @format: A string containing all the desired characters
+ * Return: A total count of the characters printed
  */
 int _printf(const char *format, ...)
 {
-    va_list args;
-    int count = 0;
+	int printed_chars;
+	conver_t f_list[] = {
+		{"c", print_char},
+		{"s", print_string},
+		{"%", print_percent},
+		{"d", print_integer},
+		{"i", print_integer},
+		{"b", print_binary},
+		{"r", print_reversed},
+		{"R", rot13},
+		{"u", unsigned_integer},
+		{"o", print_octal},
+		{"x", print_hex},
+		{"X", print_heX},
+		{NULL, NULL}
+	};
+	va_list arg_list;
 
-    va_start(args, format);
+	if (format == NULL)
+		return (-1);
 
-    while (format && *format)
-    {
-        if (*format == '%')
-        {
-            format++;  // Move past the '%'
-            switch (*format)
-            {
-                case 'c':
-                    count += write(1, &va_arg(args, int), 1);
-                    break;
-                case 's':
-                    {
-                        char *str = va_arg(args, char *);
-                        if (str == NULL)
-                            str = "(null)";
-                        while (*str)
-                        {
-                            count += write(1, str, 1);
-                            str++;
-                        }
-                    }
-                    break;
-                case '%':
-                    count += write(1, "%", 1);
-                    break;
-                default:
-                    count += write(1, "%", 1);
-                    count += write(1, format, 1);
-                    break;
-            }
-        }
-        else
-        {
-            count += write(1, format, 1);
-        }
-        format++;
-    }
-
-    va_end(args);
-
-    return count;
+	va_start(arg_list, format);
+	/*Calling parser function*/
+	printed_chars = parser(format, f_list, arg_list);
+	va_end(arg_list);
+	return (printed_chars);
 }
